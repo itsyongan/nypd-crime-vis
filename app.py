@@ -29,12 +29,9 @@ PARAMS = {
     "age group": ["<18", "18-24", "25-44", "45-64", "65+",],
 }
 
-DATA_URL = "NYPD_Arrests_Data__Historic_.csv"
-
-
+DATA_URL = "https://github.com/linynjosh/nypd-crime-vis/blob/master/NYPD_Arrests_Data__Historic.csv?raw=true"
 
 st.title("New York City🗽Police Department Crime Visualization")
-
 
 @st.cache(persist=True)
 def load_data(data, year):
@@ -92,33 +89,6 @@ st.sidebar.markdown(
     "leading numbers of arrest in terms of race, age, offense, and gender. "
 )
 
-# -------------- Load data
-df = pd.read_csv(
-    DATA_URL,
-    usecols=[
-        "Latitude",
-        "Longitude",
-        "ARREST_DATE",
-        "OFNS_DESC",
-        "AGE_GROUP",
-        "PERP_SEX",
-        "PERP_RACE",
-    ],
-)
-df.dropna(
-    subset=[
-        "Latitude",
-        "ARREST_DATE",
-        "OFNS_DESC",
-        "AGE_GROUP",
-        "PERP_SEX",
-        "PERP_RACE",
-    ],
-    inplace=True,
-)
-df = df[(df["Latitude"] < 42)]
-df = df.sample(frac=0.1)
-
 # -------------- App Layout
 st.header("Objective")
 st.markdown("To analyze the relationship between demographic features of suspects and the number of arrests over the years.")
@@ -152,14 +122,38 @@ df_summary = pd.DataFrame.from_dict(df_summary)
 df_summary = df_summary.set_index("Data Characteristics")
 st.table(df_summary)
 
-
 year_slider = st.sidebar.slider(
     min_value=2006,
     max_value=2019,
     value=2016,
     label="Year to view for secondary visual analysis: ",
 )
-
+# -------------- Load data
+df = pd.read_csv(
+    DATA_URL,
+    usecols=[
+        "Latitude",
+        "Longitude",
+        "ARREST_DATE",
+        "OFNS_DESC",
+        "AGE_GROUP",
+        "PERP_SEX",
+        "PERP_RACE",
+    ],
+)
+df.dropna(
+    subset=[
+        "Latitude",
+        "ARREST_DATE",
+        "OFNS_DESC",
+        "AGE_GROUP",
+        "PERP_SEX",
+        "PERP_RACE",
+    ],
+    inplace=True,
+)
+df = df[(df["Latitude"] < 42)]
+df = df.sample(frac=0.1)
 data = load_data(df, year=year_slider)
 
 if st.checkbox("Show Sample Raw Data", False):
